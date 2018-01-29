@@ -11,6 +11,7 @@ import scipy.io
 import scipy.signal
 import scipy.optimize
 import matplotlib.pyplot
+import logging
 import pdb
 
 ###########################################################################################
@@ -44,6 +45,8 @@ class ConvolutionalNeuralNetwork(object):
     """ Returns the convolved features of the input images """
 
     def convolve(self, input_images, num_features):
+        t1 = time.time()
+        logger.info('ConvolutionalNeuralNetwork() : convolve start')
 
         """ Extract useful values """
 
@@ -56,6 +59,7 @@ class ConvolutionalNeuralNetwork(object):
         conv_dim           = image_dim - self.patch_dim + 1
         convolved_features = numpy.zeros((num_features, num_images, conv_dim, conv_dim));
 
+        logger.info('ConvolutionalNeuralNetwork() : I:{}, F:{}, C:{}'.format(num_images,num_features,image_channels))
         for image_num in range(num_images):
 
             for feature_num in range(num_features):
@@ -67,7 +71,7 @@ class ConvolutionalNeuralNetwork(object):
                 for channel in range(image_channels):
 
                     """ Extract feature corresponding to the indices """
-
+                    #logger.info('ConvolutionalNeuralNetwork().convolve : inner loop starts')
                     limit0  = self.patch_dim * self.patch_dim * channel
                     limit1  = limit0 + self.patch_dim * self.patch_dim
                     feature = self.W[feature_num, limit0 : limit1].reshape(self.patch_dim, self.patch_dim)
@@ -81,17 +85,20 @@ class ConvolutionalNeuralNetwork(object):
                     convolved_image = convolved_image + scipy.signal.convolve2d(image, feature, 'valid');
 
                 """ Take sigmoid transform and store """
-
+                #logger.info('ConvolutionalNeuralNetwork().convolve : channel iter. ended')
                 convolved_image = self.sigmoid(convolved_image + self.b[feature_num, 0])
                 convolved_features[feature_num, image_num, :, :] = convolved_image
-
+                #logger.info('ConvolutionalNeuralNetwork().convolve : features iter. ended')
+        #logger.info('ConvolutionalNeuralNetwork().convolve : image iter. ended')
+        t2 = time.time() - t1
+        logger.info('ConvolutionalNeuralNetwork() : convolve end at {}'.format(t2))
         return convolved_features
 
     #######################################################################################
     """ Pools the given convolved features """
 
     def pool(self, convolved_features):
-
+        logger.info('ConvolutionalNeuralNetwork() : pool starts')
         """ Extract useful values """
 
         num_features = convolved_features.shape[0]
@@ -122,7 +129,7 @@ class ConvolutionalNeuralNetwork(object):
                         patch = convolved_features[feature_num, image_num, row_start : row_end,
                                                    col_start : col_end]
                         pooled_features[feature_num, image_num, pool_row, pool_col] = numpy.mean(patch)
-
+        logger.info('ConvolutionalNeuralNetwork() : pool ends')
         return pooled_features
 
 ###########################################################################################
@@ -262,13 +269,14 @@ def loadTestDataset():
 
 def visualizeW1(opt_W1, vis_patch_side, hid_patch_side):
 
+    logger.info('visualizeW1() : 1')
     """ Add the weights as a matrix of images """
 
     figure, axes = matplotlib.pyplot.subplots(nrows = hid_patch_side,
                                               ncols = hid_patch_side)
 
     """ Rescale the values from [-1, 1] to [0, 1] """
-
+    logger.info('visualizeW1() : 1.1')
     opt_W1 = (opt_W1 + 1) / 2
 
     """ Define useful values """
@@ -279,8 +287,10 @@ def visualizeW1(opt_W1, vis_patch_side, hid_patch_side):
     limit2 = limit1 + vis_patch_side * vis_patch_side
     limit3 = limit2 + vis_patch_side * vis_patch_side
 
-    for axis in axes.flat:
+    logger.info('visualizeW1() : 2')
 
+    for axis in axes.flat:
+        logger.info('visualizeW1() : 3')
         """ Initialize image as array of zeros """
 
         img = numpy.zeros((vis_patch_side, vis_patch_side, 3))
@@ -299,7 +309,7 @@ def visualizeW1(opt_W1, vis_patch_side, hid_patch_side):
         index += 1
 
     """ Show the obtained plot """
-
+    logger.info('visualizeW1() : 4')
     matplotlib.pyplot.show()
 
 ###########################################################################################
@@ -381,7 +391,7 @@ def executeConvolutionalNeuralNetwork():
     """ Visualize the learned optimal W1 weights """
 
 
-    logger.info('visualizeW1 starting')
+    logger.info('visualizeW1() : starting')
     t1 = time.time()
     visualizeW1(numpy.dot(opt_W1, zca_white), vis_patch_side, hid_patch_side)
     t2 = time.time() - t1
@@ -452,7 +462,7 @@ def main() :
     logger.addHandler(ch)
 
 
-    logger.info('executeConvolutionalNeuralNetwork()')
+    logger.info('executeConvolutionalNeuralNetwork() : starting')
     executeConvolutionalNeuralNetwork()
 
 if __name__ == '__main__' :
