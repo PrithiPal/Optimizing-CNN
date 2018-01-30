@@ -1,0 +1,43 @@
+[1;36m 
+ -------------- celery@d142-058-223-103.wireless.sfu.ca v4.1.0 (latentcall)
+---- **** ----- 
+--- * ***  * -- Darwin-15.3.0-x86_64-i386-64bit 2018-01-29 21:30:40
+-- * - **** --- 
+- ** ---------- [config]
+- ** ---------- .> app:         tasks:0x10cbd1c50
+- ** ---------- .> transport:   redis://:**@localhost:6379/0
+- ** ---------- .> results:     redis://:**@localhost:6379/0
+- *** --- * --- .> concurrency: 4 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+[0m[0m
+[tasks]
+  . tasks.add
+  . tasks.create_random_arr
+  . tasks.subtract
+[0m
+[2018-01-29 21:32:05,968: INFO/MainProcess] Connected to redis://:**@localhost:6379/0
+[2018-01-29 21:32:05,978: INFO/MainProcess] mingle: searching for neighbors
+[2018-01-29 21:32:06,998: INFO/MainProcess] mingle: all alone
+[2018-01-29 21:32:07,008: INFO/MainProcess] celery@d142-058-223-103.wireless.sfu.ca ready.
+[2018-01-29 21:33:20,352: WARNING/MainProcess] Exception
+[2018-01-29 21:33:20,352: WARNING/MainProcess] KeyError
+[2018-01-29 21:33:20,352: WARNING/MainProcess] :
+[2018-01-29 21:33:20,352: WARNING/MainProcess] KeyError(140735110524928,)
+[2018-01-29 21:33:20,352: WARNING/MainProcess] in
+[2018-01-29 21:33:20,353: WARNING/MainProcess] <module 'threading' from '/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.pyc'>
+[2018-01-29 21:33:20,353: WARNING/MainProcess] ignored
+[2018-01-29 21:33:22,052: INFO/MainProcess] Connected to redis://:**@localhost:6379/0
+[2018-01-29 21:33:22,062: INFO/MainProcess] mingle: searching for neighbors
+[2018-01-29 21:33:23,080: INFO/MainProcess] mingle: all alone
+[2018-01-29 21:33:23,090: INFO/MainProcess] celery@d142-058-223-103.wireless.sfu.ca ready.
+[2018-01-29 21:35:50,683: WARNING/MainProcess] Exception
+[2018-01-29 21:35:50,684: WARNING/MainProcess] KeyError
+[2018-01-29 21:35:50,684: WARNING/MainProcess] :
+[2018-01-29 21:35:50,684: WARNING/MainProcess] KeyError(140735110524928,)
+[2018-01-29 21:35:50,684: WARNING/MainProcess] in
+[2018-01-29 21:35:50,684: WARNING/MainProcess] <module 'threading' from '/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.pyc'>
+[2018-01-29 21:35:50,684: WARNING/MainProcess] ignored
