@@ -13,6 +13,7 @@ import scipy.optimize
 import matplotlib.pyplot
 import logging
 import pdb
+import logging
 
 ###########################################################################################
 " The Convolutional Neural Network class """
@@ -64,32 +65,21 @@ class ConvolutionalNeuralNetwork(object):
 
             for feature_num in range(num_features):
 
-                """ Initialize convolved image as array of zeros """
-
                 convolved_image = numpy.zeros((conv_dim, conv_dim))
 
                 for channel in range(image_channels):
 
-                    """ Extract feature corresponding to the indices """
-                    #logger.info('ConvolutionalNeuralNetwork().convolve : inner loop starts')
                     limit0  = self.patch_dim * self.patch_dim * channel
                     limit1  = limit0 + self.patch_dim * self.patch_dim
                     feature = self.W[feature_num, limit0 : limit1].reshape(self.patch_dim, self.patch_dim)
-
-                    """ Image to be convolved """
-
                     image = input_images[:, :, channel, image_num]
-
-                    """ Convolve image with the feature and add to existing matrix """
-
                     convolved_image = convolved_image + scipy.signal.convolve2d(image, feature, 'valid');
+                    pdb.set_trace()
+                    logger.info('ConvolutionalNeuralNetwork() : convolved_image={}'.format(convolved_image))
 
-                """ Take sigmoid transform and store """
-                #logger.info('ConvolutionalNeuralNetwork().convolve : channel iter. ended')
                 convolved_image = self.sigmoid(convolved_image + self.b[feature_num, 0])
                 convolved_features[feature_num, image_num, :, :] = convolved_image
-                #logger.info('ConvolutionalNeuralNetwork().convolve : features iter. ended')
-        #logger.info('ConvolutionalNeuralNetwork().convolve : image iter. ended')
+
         t2 = time.time() - t1
         logger.info('ConvolutionalNeuralNetwork() : convolve end at {}'.format(t2))
         return convolved_features
