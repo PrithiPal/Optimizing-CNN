@@ -14,7 +14,8 @@ import matplotlib.pyplot
 import logging
 import pdb
 import logging
-
+import threading
+from convolve_thread import convolve_thread
 ###########################################################################################
 " The Convolutional Neural Network class """
 
@@ -45,9 +46,9 @@ class ConvolutionalNeuralNetwork(object):
     #######################################################################################
     """ Returns the convolved features of the input images """
 
+
     def convolve(self, input_images, num_features):
         t1 = time.time()
-        logger.info('ConvolutionalNeuralNetwork() : convolve start')
 
         """ Extract useful values """
 
@@ -60,35 +61,49 @@ class ConvolutionalNeuralNetwork(object):
         conv_dim           = image_dim - self.patch_dim + 1
         convolved_features = numpy.zeros((num_features, num_images, conv_dim, conv_dim));
 
-        logger.info('ConvolutionalNeuralNetwork() : I:{}, F:{}, C:{}'.format(num_images,num_features,image_channels))
-        for image_num in range(num_images):
+        logger.info('[ convolve ]: I:{}, F:{}, C:{} [~{}]'.format(num_images,num_features,image_channels,threading.active_count()))
 
-            for feature_num in range(num_features):
+        feature_dict = dict(
+            num_features=num_features,
+            conv_dim=conv_dim,
+            image_channels=image_channels,
+            patch_dim=self.patch_dim,
+            W = self.W,
+            b = self.b,
+            input_images=input_images,
+            convolved_features=convolved_features
+        )
 
-                convolved_image = numpy.zeros((conv_dim, conv_dim))
+        t_id=0
+        l = threading.Lock()
+        #for image_num in range(num_images):
+        for image_num in range(1) :
 
-                for channel in range(image_channels):
+            feature_dict['image_num']=image_num
+            logger.info('[ convolve ]: convolve_thread[{}] spawned [~{}] '.format(t_id,threading.active_count()))
+            t = threading.Thread(target=convolve_thread,args=(feature_dict,0,num_features,t_id))
+            t.start()
+            t.join()
+            print('asdfasdfasdfasdf')
+            #logger.info('[ convolve ]: convolve_thread[{}] ended [~{}] '.format(t_id,threading.active_count()))
+            l.acquire()
+            t_id = t_id + 1
+            l.release()
 
-                    limit0  = self.patch_dim * self.patch_dim * channel
-                    limit1  = limit0 + self.patch_dim * self.patch_dim
-                    feature = self.W[feature_num, limit0 : limit1].reshape(self.patch_dim, self.patch_dim)
-                    image = input_images[:, :, channel, image_num]
-                    convolved_image = convolved_image + scipy.signal.convolve2d(image, feature, 'valid');
-                    pdb.set_trace()
-                    logger.info('ConvolutionalNeuralNetwork() : convolved_image={}'.format(convolved_image))
 
-                convolved_image = self.sigmoid(convolved_image + self.b[feature_num, 0])
-                convolved_features[feature_num, image_num, :, :] = convolved_image
+
+
+
 
         t2 = time.time() - t1
-        logger.info('ConvolutionalNeuralNetwork() : convolve end at {}'.format(t2))
+        logger.info('[ convolve ] : convolve end at {} [~{}]'.format(t2,threading.currentThread()))
         return convolved_features
 
     #######################################################################################
     """ Pools the given convolved features """
 
     def pool(self, convolved_features):
-        logger.info('ConvolutionalNeuralNetwork() : pool starts')
+        #logger.info('[ pool ] : pool starts')
         """ Extract useful values """
 
         num_features = convolved_features.shape[0]
@@ -119,7 +134,7 @@ class ConvolutionalNeuralNetwork(object):
                         patch = convolved_features[feature_num, image_num, row_start : row_end,
                                                    col_start : col_end]
                         pooled_features[feature_num, image_num, pool_row, pool_col] = numpy.mean(patch)
-        logger.info('ConvolutionalNeuralNetwork() : pool ends')
+        #logger.info('ConvolutionalNeuralNetwork() : pool ends')
         return pooled_features
 
 ###########################################################################################
@@ -313,8 +328,9 @@ def getPooledFeatures(network, images, num_features, res_dim, step_size):
 
     pooled_features_data = numpy.zeros((num_features, num_images, res_dim, res_dim))
 
-    for step in range(num_images / step_size):
-
+    logger.info('[ getpooledFeatures ] : Convolution [0,{}] [~{}]'.format(num_images / step_size,threading.active_count()))
+##    for step in range(num_images / step_size):
+    for step in range(1):
         """ Limits to access batch of images """
 
         limit0 = step_size * step
@@ -323,8 +339,10 @@ def getPooledFeatures(network, images, num_features, res_dim, step_size):
         image_batch = images[:, :, :, limit0 : limit1]
 
         """ Calculate pooled features for the image batch """
-
+        logger.info('[ getpooledFeatures {}] : convolve starts [~{}]'.format(step,threading.active_count()))
         convolved_features = network.convolve(image_batch, num_features)
+
+
         pooled_features    = network.pool(convolved_features)
 
         pooled_features_data[:, limit0 : limit1, :, :] = pooled_features
@@ -391,6 +409,7 @@ def executeConvolutionalNeuralNetwork():
 
 
 
+
     network = ConvolutionalNeuralNetwork(opt_W1, opt_b1, zca_white, mean_patch, vis_patch_side, pool_dim)
 
     """ Step size for the pooling process
@@ -409,7 +428,7 @@ def executeConvolutionalNeuralNetwork():
     """ Get pooled features for training and test data """
 
     softmax_train_data = getPooledFeatures(network, train_images, hidden_size, res_dim, step_size)
-    softmax_test_data  = getPooledFeatures(network, test_images, hidden_size, res_dim, step_size)
+    #softmax_test_data  = getPooledFeatures(network, test_images, hidden_size, res_dim, step_size)
 
     """ Initialize parameters of the Regressor """
 
@@ -446,7 +465,7 @@ def main() :
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
 
     ch.setFormatter(formatter)
     logger.addHandler(ch)

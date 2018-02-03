@@ -36,3 +36,4 @@ def convolve_channel_thread(featuredict) :
 
         convolved_image = sigmoid(convolved_image + b[feature_num, 0])
         convolved_features[feature_num, image_num, :, :] = convolved_image
+    return convolved_features

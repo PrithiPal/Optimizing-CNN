@@ -1,6 +1,4 @@
 #!/bin/bash
-
-
 FILENAME='/etc/hosts'
 
 add_node(){

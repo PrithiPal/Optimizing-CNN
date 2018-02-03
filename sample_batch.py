@@ -23,7 +23,7 @@ def generate_arr(thread_no, n, s,e) :
 
 
     t2 = time.time() - time1
-    print('Thread {} : ended [{} left]'.format(thread_no,threading.active_count()))
+    print('Thread {} : ended [{} left] [{}]'.format(thread_no,threading.active_count(),t2))
 
     return 1
 
