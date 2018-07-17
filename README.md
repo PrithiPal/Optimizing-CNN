@@ -14,7 +14,7 @@ Procedure :
 
 [MULTIPLE MACHINES - CLUSTER]
 
-1. Implementation of code at different computer nodes. The plan would be to identify independent areas, deploy at nodes and communicate between nodes .
+1. Implement the optimized CNN in a distributed system. The plan would be to identify independent areas, deploy at nodes and initiate communication between them.
 2. Design a structure similar to P2P, master-slave or load-balancing. 
 
 
