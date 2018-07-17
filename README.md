@@ -1,6 +1,6 @@
 # Optimization
 
-This repository attempts to optimize the implementation of a CNN(Convolutional Neural Networks)[1] and make it faster than original code. 
+An optimized implementation of CNN(Convolutional Neural Networks)[1] that decreases execution time.
 
 Procedure : 
 
